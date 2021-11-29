@@ -57,15 +57,21 @@ def calculate_hausdroff(component1,component2):
 def bfScore(component1,component2):
     intermediate_result = -1
     theta = 10
-    for k in range(0,theta+1):
-        a = np.add(component1,l)
-        for l in range(0,theta+1):
-            b = np.add(component2,l)
-            if intermediate_result > jaccard_similarity_score(component1[row][column],component2[row][column]):
-                intermediate_result = jaccard_similarity_score(component1[row][column],component2[row][column])
-                                                              
-    return(intermediate_result)
- 
+    
+    for i in range(0,3):
+      a = component1[i]
+      b = component2[i]
+      if (b > a)&(abs(b-a) >= theta):
+        component2[i] = component2[i] - theta
+      elif(b > a)&(abs(b-a) < theta):
+        component2[i] = component2[i]
+      elif (b < a)&(abs(b-a) >= theta):
+        component2[i] = component2[i] + theta
+      elif(b < a)&(abs(b-a) < theta):
+        component2[i] = component2[i]
+    
+    return(jaccard_similarity_score(component1,component2))
+
 pred = pd.read_pickle(r'C:\Users\Inspiron\Desktop\DS5500\dataset')
 data = pd.read_pickle(r'C:\Users\Inspiron\Desktop\DS5500\predicted')
 
@@ -117,3 +123,14 @@ for target in range(0,300):
             for column in range(0,np.shape(sub_a)[1]):
               intermediate_result = intermediate_result + [jaccard_similarity_score(sub_a[row][column],sub_b[row][column])]  
     tmScore = tmScore + [np.mean(intermediate_result)]
+    
+    
+# Calculating Boundary Metric (BF1)
+for target in range(0, 300):
+    a = actual_moddata[target]
+    b = moddata[target]
+    bf_Scores = []
+    for i in range(0,np.shape(a)[0]):
+        for j in range(0,np.shape(a)[1]):
+            bf_Scores = bf_Scores + [bfScore(a,b)]
+
